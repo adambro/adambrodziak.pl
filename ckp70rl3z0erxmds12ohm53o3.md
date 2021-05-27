@@ -1,7 +1,5 @@
 ## Terraform is terrible
 
-# Terraform is terrible
-
 Here is my experience from running and upgrading a small Terraform project. As you might have guessed it was not great, but I'll try to focus on facts rather than opinions (even though some might sneak in). It will be mainly about the CLI client and it's versioning schema, but also some complaints about state management. I'm big proponent of CI/CD and Infrastructure as Code and I will try to explain how Terraform does not fit the picture.
 
 The project is small, but manages 8 clusters. Contrary to typical case it's a SaaS: Atlas service that offers managed MongoDB on AWS in our case. Every project is using some of 7 modules that represent Atlas resources with necessary AWS bindings (i.e. secrets). When we started 0.12 was the newest version, so upgrade to 0.13 is part of the story.
@@ -17,6 +15,7 @@ I dare to say that remote state has all the disadvantages of cache, but not many
 ### State config on AWS using S3 and DynamoDB
 
 State configuration is another weak point. Typically S3 backend is used to store state, that's fine. But if you want to make it safe from many people overwriting each other changes by running `terraform apply` at the same time you need additional configuration for locks or mutex. You should definitely use that!
+
 %[https://twitter.com/AdamBrodziak/status/1387764929286004745]
 
 In AWS realm DynamoDB is needed for locks. My guess is S3 does not have atomic operation to obtain a lock, so key-value database is needed. What I don't understand is: why I need both? __Why not store state in DynamoDB directly?__ The state contents is just JSON, right? If you happen to work on Terraform let me know, please. For me that's a big overlook.
