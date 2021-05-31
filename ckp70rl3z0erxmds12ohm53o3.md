@@ -86,7 +86,7 @@ Why bother with 0.13 upgrade after all? Well, we needed [`for_each` syntax featu
 The biggest problem is that even patch versions (x.y.Z) can introduce new features, so it might not be enough to have any 0.13.x version, but rather bind to the specific `0.13.7` for all clients. In addition client version is stored in state, so using newer by accident can enforce an upgrade for everyone.
 Managing Terraform versions is really cumbersome, to the extend that tools like [terraform-switcher](https://github.com/warrensbox/terraform-switcher) exist.  I did not wanted yet another interactive CLI tool for our CI server, that's why I've went with Makefile that can be used on CI and locally. In my opinion Makefile is vastly misunderstood (and hence underused tool), but that's a story for another time.
 
-Since the start of the project (August 2021) Hashicorp released 3 new major versions. The newest one is `0.15.4` and we've started on `0.12.5` back then. It means that over the last 6 months 3 breaking change releases have been made, one every second month! That is rapid change rate for something that should be stable and boring like infrastructure. The other surprising fact is that initial Terraform release was in 2014, so the project is almost 7 years old.
+Since the start of our project (August 2020) Hashicorp released 3 new major versions. The newest one is `0.15.4` and we've started on `0.12.5` back then. It means that over the last 6 months 3 breaking change releases have been made, one every second month! That is rapid change rate for something that should be stable and boring like infrastructure. The other surprising fact is that initial Terraform release was in 2014, so the project is almost 7 years old.
 
 ## Parting thoughts
 
