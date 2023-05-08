@@ -4,7 +4,7 @@ datePublished: Sun May 07 2023 15:32:41 GMT+0000 (Coordinated Universal Time)
 cuid: clhdkoxfo000j09mq8fv2f6w6
 slug: log-retention-in-elk-stack
 cover: https://cdn.hashnode.com/res/hashnode/image/upload/v1683473248840/9abb5384-14aa-4bd0-a99f-38e84defc5e1.jpeg
-tags: logstash, elasticsearch, elk, logging
+tags: bash, logstash, elasticsearch, elk, logging
 
 ---
 
