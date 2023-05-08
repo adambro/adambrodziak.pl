@@ -43,7 +43,7 @@ DISK_WATERMARK=88
 
 NODES_UTILIZATION=$(curl --fail-with-body -s -X GET "$ELASTIC_URL/_cat/allocation?h=disk.percent&pretty")
 for DISK_USAGE in $NODES_UTILIZATION; do
-    if (($DISK_USAGE > $DISK_WATERMARK)); then
+    if [ "$DISK_USAGE" -gt "$DISK_WATERMARK" ]; then
         OLDEST_INDEX="$(curl --fail-with-body -s -X GET "$ELASTIC_URL/_cat/indices/logstash-*?h=index&s=index" | head -n 1)"
         curl --fail-with-body -s -X DELETE "$ELASTIC_URL/$OLDEST_INDEX"
         exit 0
