@@ -1,4 +1,12 @@
-## Dockerfile good practices for Node and NPM
+---
+title: "Dockerfile good practices for Node and NPM"
+datePublished: Wed Jan 27 2021 16:24:32 GMT+0000 (Coordinated Universal Time)
+cuid: ckkfn2l1p00cgwjs15boc3g9y
+slug: dockerfile-good-practices-for-node-and-npm
+cover: https://cdn.hashnode.com/res/hashnode/image/upload/v1611764593683/1wg753A5P.jpeg
+tags: docker, nodejs, npm, docker-images
+
+---
 
 The goal is to produce minimal image to keep the size low and reduce attack surface. Also we want to make the `docker build` process fast by removing unnecessary steps and using practices outlined below to leverage internal build cache.
 
@@ -19,10 +27,9 @@ RUN chown node:node ./
 USER node
 ```
 
-Node process no longer runs with `root` privileges.
-By such simple change you've increased security of the image a lot.
+Node process no longer runs with `root` privileges. By such simple change you've increased security of the image a lot.
 
-### Set NODE_ENV=production by default
+### Set NODE\_ENV=production by default
 
 This is the most important one, as it affects NPM described below. In short `NODE_ENV=production` switch middlewares and dependencies to efficient code path and NPM installs only packages in `dependencies`. Packages in `devDependencies` and `peerDependencies` are ignored.
 
@@ -32,8 +39,7 @@ ARG NODE_ENV=production
 ENV NODE_ENV $NODE_ENV
 ```
 
-For local development we can override it's value.
-Here's an example `docker-compose.yml` file that builds and runs our Docker image in development mode:
+For local development we can override it's value. Here's an example `docker-compose.yml` file that builds and runs our Docker image in development mode:
 
 ```yaml
 version: '3'
@@ -62,11 +68,11 @@ COPY ./src ./src
 
 The `npm ci` will install only packages from lock file for reproducible builds on CI server. I recommend using it by default. Have a read how it is different than `npm install` in the official docs.
 
-The magic happens in `&&` which will execute two commands in one run producing one Docker image layer. This layer will be then cached, so subsequent run of the same command (with the same `package*.json`) will use the cache. 
+The magic happens in `&&` which will execute two commands in one run producing one Docker image layer. This layer will be then cached, so subsequent run of the same command (with the same `package*.json`) will use the cache.
 
 Since build uses Docker image cache the NPM cache is not needed, so we can clean downloaded packages cache. This way resulting image is smaller.
 
-```
+```plaintext
 $ docker build .
 Sending build context to Docker daemon
 Step 2/5 : COPY package.json package-lock.json* ./
@@ -83,7 +89,7 @@ While we're at this I recommend adding `node_modules` line to `.dockerignore` fi
 
 Last, but not least, is to avoid `npm start` as command to start application in container. Using NPM seems reasonable, because this is how you used to run the application locally. However with Docker and Kubernetes it's a bit more complicated.
 
-The main problem with `npm start` is that NPM does not pass `SIGTERM` OS signal to Node process. Because of that Node is not able to do cleanup before exit. Docker and Kubernetes send `SIGTERM` to container process when they want to stop it. 
+The main problem with `npm start` is that NPM does not pass `SIGTERM` OS signal to Node process. Because of that Node is not able to do cleanup before exit. Docker and Kubernetes send `SIGTERM` to container process when they want to stop it.
 
 This can lead to many issues from hanging database connections to open file descriptors. Notice that it's not only your application code that might react to `SIGTERM`, but it might be the framework or some libraries.
 
@@ -117,13 +123,13 @@ Now try to execute `docker container stop` against newly created one. The change
 
 Such even handler is the place where you want to cleanup all the resources created or opened by the application.
 
+In NestJS for example add `app.enableShutdownHooks()` call in bootstrap according to [Nest docs](https://docs.nestjs.com/fundamentals/lifecycle-events#application-shutdown).
+
 ## Builder pattern
 
 Let's say your use case is to turn SASS/SCSS into plain CSS using Ruby Compass compiler. It has different stack than the rest of Node app, so we will need separate Docker image. Here's how to use such separate temporary image for compilation step.
 
-Modern Docker versions allow to use [multi-stage builds]. Essentially it allows to have many `FROM` clauses in Dockerfile, but only the last one `FROM` will be used as a base for our image. It means that all the layers of other stages will be discarded, so the resulting image is going to be small.
-
-[multi-stage builds]: https://docs.docker.com/develop/develop-images/multistage-build/
+Modern Docker versions allow to use [multi-stage builds](https://docs.docker.com/develop/develop-images/multistage-build/). Essentially it allows to have many `FROM` clauses in Dockerfile, but only the last one `FROM` will be used as a base for our image. It means that all the layers of other stages will be discarded, so the resulting image is going to be small.
 
 ```Dockerfile
 FROM rubygem/compass AS builder
@@ -140,7 +146,7 @@ Docker build engine will save resulting files in a temporary image that can be u
 COPY --from=builder /dist/css ./dist/css
 ```
 
-Such expression will copy files from `/dist` folder, in our case `css.app.css` only. All the other image layers will be discarded for the 
+Such expression will copy files from `/dist` folder, in our case `css.app.css` only. All the other image layers will be discarded for the
 
 The same pattern can be used for any other compilation or transpilation tool, like Babel, Webpack, TypeScript, etc. In fact it makes sense whenever we have to install any development tool that should not be part of production build. The same applies for installing git, C++ compiler, development version of packages (packages with `-dev` suffix).
 
@@ -182,7 +188,6 @@ COPY --from=builder /dist/css ./dist/css
 CMD ["node", "./src/index.js"]
 ```
 
-The `Dockerfile` above contains all the essential good practices for JavaScript project (either NodeJS server or some frontend). In case you're interested in more advanced optimizations check out the repository documenting more good defaults for Node on Docker:
-https://github.com/BretFisher/node-docker-good-defaults
+The `Dockerfile` above contains all the essential good practices for JavaScript project (either NodeJS server or some frontend). In case you're interested in more advanced optimizations check out the repository documenting more good defaults for Node on Docker: https://github.com/BretFisher/node-docker-good-defaults
 
 Spread the knowledge about good practices in Dockerfile creation.
